@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>logFormatVersion</key>
+	<integer>9</integer>
+	<key>logs</key>
+	<dict>
+		<key>4FD43A61-2E6F-4A12-925C-B387181E7BCD</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>4FD43A61-2E6F-4A12-925C-B387181E7BCD.xcactivitylog</string>
+			<key>highLevelStatus</key>
+			<string>W</string>
+			<key>schemeIdentifier-containerName</key>
+			<string>TSDemo project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>TSDemo</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Building project TSDemo with scheme TSDemo and configuration Debug</string>
+			<key>timeStartedRecording</key>
+			<real>575304983.43297601</real>
+			<key>timeStoppedRecording</key>
+			<real>575304984.61540997</real>
+			<key>title</key>
+			<string>Building project TSDemo with scheme TSDemo and configuration Debug</string>
+			<key>uniqueIdentifier</key>
+			<string>4FD43A61-2E6F-4A12-925C-B387181E7BCD</string>
+		</dict>
+		<key>ECEB0679-D183-4228-8682-BBB91E070B14</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>ECEB0679-D183-4228-8682-BBB91E070B14.xcactivitylog</string>
+			<key>highLevelStatus</key>
+			<string>W</string>
+			<key>schemeIdentifier-containerName</key>
+			<string>TSDemo project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>TSDemo</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Building project TSDemo with scheme TSDemo and configuration Debug</string>
+			<key>timeStartedRecording</key>
+			<real>575540963.61563897</real>
+			<key>timeStoppedRecording</key>
+			<real>575540970.47544301</real>
+			<key>title</key>
+			<string>Building project TSDemo with scheme TSDemo and configuration Debug</string>
+			<key>uniqueIdentifier</key>
+			<string>ECEB0679-D183-4228-8682-BBB91E070B14</string>
+		</dict>
+	</dict>
+</dict>
+</plist>
