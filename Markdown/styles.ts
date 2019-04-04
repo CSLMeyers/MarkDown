@@ -25,7 +25,6 @@ const styles = StyleSheet.create({
   } as TextStyle,
   bullet: {
     paddingLeft: 8,
-    paddingTop: 4,
     paddingRight: 24,
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
@@ -33,7 +32,6 @@ const styles = StyleSheet.create({
   } as TextStyle,
   bulletPrefix: {
     fontWeight: 'bold',
-    fontSize: 18,
   } as TextStyle,
   link: {
     color: 'blue',

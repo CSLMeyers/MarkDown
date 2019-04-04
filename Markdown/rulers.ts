@@ -13,7 +13,7 @@ export const rulers = {
     hr: /^(?:([\*\-_] ?)+)\1\1$/gm,
     lists: /^((\s*((\*|\-)|\d(\.|\))) [^\n]+)\n)+/gm,
     bolditalic: /(?:([\*_~]{1,3}))([^\*_~\n]+[^\*_~\s])\1/g,
-    links: /!?\[([^\]<>]+)\]\(([^ \)<>]+)( "[^\(\)\"]+")?\)/g,
+    links: /\[([^\]<>]+)\]\(([^ \)<>]+)( "[^\(\)\"]+")?\)/,
     reflinks: /\[([^\]]+)\]\[([^\]]+)\]/g,
     smlinks: /\@([a-z0-9]{3,})\@(t|gh|fb|gp|adn)/gi,
     mail: /<(([a-z0-9_\-\.])+\@([a-z0-9_\-\.])+\.([a-z]{2,7}))>/gmi,
@@ -34,32 +34,36 @@ export const rulers = {
             .replace(TAB_R, '    ');
     
     // parse list
-    let out = this.parseList(text);
-
+    let out = this.execType(text, this.parseList.bind(this));
     // parse link
-
-
-    // parse text
-    if (Array.isArray(out)) {
-      for (let i = 0; i < out.length; ++i) {
-        if (typeof out[i].data === "string") {
-          out[i].data = this.parseText(out[i].data);
-        }
-      }
-    }
+    out = this.execType(out, this.parseLink.bind(this));
+    // parse normal text
+    out = this.execType(out, this.parseText.bind(this));
 
     return out;
   },
 
+  execType(data: enableDataType, func: any): any {
+    if (typeof data == "string") {
+      return func(data);
+    } else if (Array.isArray(data)) {
+      return data.map(e => this.execType(e, func));
+    } else if (typeof data == "object") {
+      data.data = this.execType(data.data, func);
+      return data;
+    }
+  },
+
+  // The recursive can't express the tree structure, so instead use the loop
   parseList(text: string) {
     const out = [];
-    let stra, line, type;
+    let stra, line, type, title;
     while ((stra = this.regexobject.lists.exec(text)) !== null) {
       let before = text.slice(0, stra.index).replace(/\n+$/g,'');
       if (before.length) {
         out.push({
           type: types.simple,
-          data: before.replace(/\n+$/g,''),
+          data: before,
         });
       }
       
@@ -69,89 +73,100 @@ export const rulers = {
         if ((line = /^((\s*)((\*|\-)|\d(\.|\))) ([^\n]+))/.exec(helper[i])) !== null) {
           if ((line[0].trim().substr(0, 1) === '*') || (line[0].trim().substr(0, 1) === '-')) {
             type = types.bullet;
-            out.push({
-              type: type,
-              title: '\u2022 ',
-              data: line[6],
-            });
+            title = '\u2022  ';
           } else {
+            // deal with title number
             type = types.numbered;
-            out.push({
-              type: type,
-              title: line[3], // 顺序从第一个开始累加 i, i+1, i+2...
-              data: line[6],
-            });
+            title = line[3];
           }
+
+          out.push({
+            type: type,
+            title: title,
+            data: line[6],
+          });
         }
       }
       text = text.replace(stra[0], '');
     }
     
-    out.push({
-      type: types.simple,
-      data: text,
-    });
+    if (text.length) {
+      out.push({
+        type: types.simple,
+        data: text,
+      });
+    }
+
     return out;
   },
 
-  parseText(text: string) :any {
-    if (!text || !text.length || typeof text !== "string") {
-      return;
-    }
-    
-    text = text.replace(CR_NEWLINE_R, '\n')
-            .replace(FORMFEED_R, '')
-            .replace(TAB_R, '    ');
-    
-    let res: MdData | null = this.findNextType(text);
-
-    if (!res) {
-      return text;
-    }
-    
+  parseLink(text: string): any {
     const out = [];
-    out.push({
-      type: types.simple,
-      data: text.slice(0, res.data.index),
-    });
-    
-    switch(res.type) {
-      case types.bold:
-      case types.italic:
+    let regData: RegExpExecArray | null;
+
+    while ((regData = this.regexobject.links.exec(text)) !== null) {
+      if (!regData || regData.length < 3) {
+        break;
+      }
+      
+      if (regData.index > 0) {
         out.push({
-          type: res.type,
-          data: this.parseText(res.data[1]),
+          type: types.simple,
+          data: text.slice(0, regData.index),
         });
-        break;
-      case types.hyperlinks:
-        out.push(this.handleLink(res));
-        break;
-      default:
-        break;
+      }
+      
+      out.push({
+        type: types.hyperlinks,
+        link: regData[2],
+        data: regData[1],
+      });
+      text = text.slice(regData.index + regData[0].length);
     }
 
-    text = text.slice(res.data.index + res.data[0].length);
-    out.push(this.parseText(text));
+    if (text.length) {
+      out.push({
+        type: types.simple,
+        data: text,
+      });
+    }
 
     return out;
   },
-  
-  handleLink(mdData: MdData): linkData | null { 
-    if (!mdData || mdData.data.length < 3) {
-      return null;
+
+  /* bold and italic */
+  parseText(text: string) :any {
+    const out = [];
+    let regData: MdData | null;
+    while ((regData = this.findNextType(text)) !== null) {
+      if (regData.data.index > 0) {
+        out.push({
+          type: types.simple,
+          data: text.slice(0, regData.data.index),
+        });
+      }
+
+      out.push({
+        type: regData.type,
+        data: this.parseText(regData.data[1]),
+      });
+
+      text = text.slice(regData.data.index + regData.data[0].length);
     }
 
-    return {
-      type: mdData.type,
-      link: mdData.data[2],
-      data: this.parseText(mdData.data[1]),
-    };
+    if (text.length) {
+      out.push({
+        type: types.simple,
+        data: text,
+      });
+    }
+
+    return out;
   },
 
   findNextType(text: string) {
     let boldData: MdData | null = this.findBold(text);
     let italicData: MdData | null = this.findItalic(text);
-    let linkData: MdData | null = this.findHyperlink(text);
     
     const data = [];
     if (boldData) {
@@ -161,11 +176,7 @@ export const rulers = {
     if (italicData) {
       data.push(italicData);
     }
-
-    if (linkData) {
-      data.push(linkData)
-    }
-
+    
     let sortedData = data.sort(function(a: MdData, b: MdData) {
       return a.data.index - b.data.index;
     });
@@ -179,10 +190,6 @@ export const rulers = {
 
   findItalic(text:string) {
     return this.find(this.regexobject.italic, types.italic, text);
-  },
-
-  findHyperlink(text: string) {
-    return this.find(this.regexobject.links, types.hyperlinks, text);
   },
 
   find(reg : any, type: types, text: string) {

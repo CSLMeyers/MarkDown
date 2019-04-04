@@ -49,7 +49,7 @@ export class Markdown extends React.Component<MarkdownProp> {
             <Text key={i} style={styles.italic}>{this.renderView(data.data)}</Text>
             );
         case types.bullet:
-          return (<List key={i} oreder={false} value={this.renderView(data.data)}/>);
+          return (<List key={i} oreder={false} title={data.title} value={this.renderView(data.data)}/>);
         case types.numbered:
           return (<List key={i} oreder={true} title={data.title} value={this.renderView(data.data)}/>);
         case types.hyperlinks:

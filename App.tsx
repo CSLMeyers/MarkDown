@@ -53,8 +53,8 @@ sdf
 ` ;
 
 const text6 = `
-efdsf **bold[Adaptive** _Cards_](http://adaptivecards.io)
-[**Adaptive** _Cards_](http://adaptivecards.io)
+**Adaptive_cards_**
+[**Adaptive** _Cards_](http://adaptivecards.io)[**Adaptive** _Cards_](http://adaptivecards.io)
 ` ;
 
 const text = `
@@ -72,7 +72,7 @@ export default class App extends Component<Props> {
   render() {
     return (
         <View style={styles.container}>
-          <Markdown text={text6} styles={styles.markdown} >
+          <Markdown text={text} styles={styles.markdown} >
             
           </Markdown>
         </View>
