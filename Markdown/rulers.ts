@@ -1,4 +1,4 @@
-import { types, enableDataType, MdData, textData, listData, linkData} from './mddata'
+import { types, enableDataType, MdData} from './mddata'
 
 var CR_NEWLINE_R = /\r\n?/g;
 var TAB_R = /\t/g;
@@ -35,6 +35,7 @@ export const rulers = {
     
     // parse list
     let out = this.execType(text, this.parseList.bind(this));
+    out = this.execType(out, this.parseUnorderList.bind(this));
     // parse link
     out = this.execType(out, this.parseLink.bind(this));
     // parse normal text
@@ -43,7 +44,7 @@ export const rulers = {
     return out;
   },
 
-  execType(data: enableDataType, func: any): any {
+  execType(data: any, func: any): any {
     if (typeof data == "string") {
       return func(data);
     } else if (Array.isArray(data)) {
@@ -54,14 +55,50 @@ export const rulers = {
     }
   },
 
-  // The recursive can't express the tree structure, so instead use the loop
+  // Recursive can't express the tree structure, so instead use the loop
   parseList(text: string) {
-    const out = [];
+    let out = [];
+    let stra, line;
+    while ((stra = /^((\s*(\d(\.|\))) [^\n]+)\n)+/gm.exec(text)) !== null) {
+      let before = text.slice(0, stra.index);
+      if (before.length) {
+        out.push(before);
+      }
+      
+      text = text.slice(stra.index, text.length);
+      let helper = stra[0].split('\n');
+      // TODO: start from No.1 currently, maybe change from first list number
+      let items = [];
+      for (let i = 0; i < helper.length; i++) {
+        if ((line = /^((\s*)(\d(\.|\))) ([^\n]+))/.exec(helper[i])) !== null) {
+          items.push({
+            type: types.simple,
+            data: line[5],
+          });
+        }
+      }
+      out.push({
+        type: types.orderlist,
+        data: items,
+      });
+      text = text.replace(stra[0], '\n');
+    }
+    
+    if (text.length) {
+      out.push(text);
+    }
+
+    return out;
+  },
+
+  parseUnorderList(text: string) {
+    let out = [];
     let stra, line, type, title;
-    while ((stra = this.regexobject.lists.exec(text)) !== null) {
-      let before = text.slice(0, stra.index).replace(/\n+$/g,'');
+    while ((stra = /^((\s*((\*|\-)|\d(\.|\))) [^\n]+)\n)+/gm.exec(text)) !== null) {
+      let before = text.slice(0, stra.index);
       if (before.length) {
         out.push({
+          // regard text that left is simple <text/>
           type: types.simple,
           data: before,
         });
@@ -69,25 +106,20 @@ export const rulers = {
       
       text = text.slice(stra.index, text.length);
       let helper = stra[0].split('\n');
+      let items = [];
       for (let i = 0; i < helper.length; i++) {
         if ((line = /^((\s*)((\*|\-)|\d(\.|\))) ([^\n]+))/.exec(helper[i])) !== null) {
-          if ((line[0].trim().substr(0, 1) === '*') || (line[0].trim().substr(0, 1) === '-')) {
-            type = types.bullet;
-            title = '\u2022  ';
-          } else {
-            // deal with title number
-            type = types.numbered;
-            title = line[3];
-          }
-
-          out.push({
-            type: type,
-            title: title,
+          items.push({
+            type: types.simple,
             data: line[6],
           });
         }
       }
-      text = text.replace(stra[0], '');
+      out.push({
+        type: types.unorderlist,
+        data: items,
+      });
+      text = text.replace(stra[0], '\n');
     }
     
     if (text.length) {
@@ -101,6 +133,10 @@ export const rulers = {
   },
 
   parseLink(text: string): any {
+    if (this.regexobject.links.exec(text) === null) {
+      return text;
+    }
+
     const out = [];
     let regData: RegExpExecArray | null;
 
@@ -110,10 +146,7 @@ export const rulers = {
       }
       
       if (regData.index > 0) {
-        out.push({
-          type: types.simple,
-          data: text.slice(0, regData.index),
-        });
+        out.push(text.slice(0, regData.index));
       }
       
       out.push({
@@ -125,10 +158,7 @@ export const rulers = {
     }
 
     if (text.length) {
-      out.push({
-        type: types.simple,
-        data: text,
-      });
+      out.push(text);
     }
 
     return out;
@@ -136,14 +166,15 @@ export const rulers = {
 
   /* bold and italic */
   parseText(text: string) :any {
+    if (this.findNextType(text) === null) {
+      return text;
+    }
+
     const out = [];
     let regData: MdData | null;
     while ((regData = this.findNextType(text)) !== null) {
       if (regData.data.index > 0) {
-        out.push({
-          type: types.simple,
-          data: text.slice(0, regData.data.index),
-        });
+        out.push(text.slice(0, regData.data.index));
       }
 
       out.push({
@@ -155,10 +186,7 @@ export const rulers = {
     }
 
     if (text.length) {
-      out.push({
-        type: types.simple,
-        data: text,
-      });
+      out.push(text);
     }
 
     return out;

@@ -17,21 +17,28 @@ const styles = StyleSheet.create({
   italic: {
     fontStyle: 'italic',
   } as TextStyle,
-  numbered: {
-    
-  } as TextStyle,
-  bulletContainer: {
+  listItem: {
     flexDirection: 'row',
   } as TextStyle,
-  bullet: {
-    paddingLeft: 8,
+  listItemContent: {
     paddingRight: 24,
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
     flexWrap: 'wrap',
   } as TextStyle,
-  bulletPrefix: {
-    fontWeight: 'bold',
+  listItemBullet: {
+    paddingLeft: 16,
+    paddingRight: 8,
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    flexWrap: 'wrap',
+  } as TextStyle,
+  listItemNumber: {
+    paddingLeft: 16,
+    paddingRight: 8,
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    flexWrap: 'wrap',
   } as TextStyle,
   link: {
     color: 'blue',

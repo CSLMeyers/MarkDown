@@ -1,341 +1,271 @@
-import * as React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types'
 import {
-  Text,
-  View,
-  Linking,
+    TouchableOpacity,
+    Text,
+    View,
+    Image,
+    Linking,
+    StyleSheet
 } from 'react-native';
+import SimpleMarkdown from 'simple-markdown';
+
 import styles from './styles';
-import List from './list';
-import { rulers } from './rulers';
+import Utils from './Utils';
 
-const BULLET = '•'
-const UNORDERED_PREFIX = `${BULLET} `
-type MdData = string | Type | Type[];
-interface Type {
-  type:  'bold' | 'italic' | 'bullet' | 'numbered' | 'hyperlinks';
-  text: string;
-  link: string;
-  data: Type;
-}
-
-var listtype = ['bullet', 'numbered'];
-
-interface MarkdownProp {
-  text: string;
-}
-
-function flatArray(input) {
-  return input.reduce(function(prev, cur) {
-    let more = [].concat(cur).some(Array.isArray);
-    return prev.concat(more ? flatArray(cur) : cur);
-  },[]);
-}
-
-export class Markdown extends React.Component<MarkdownProp> {
-  render() {
-    let text: MdData = this.parse(this.props.text);
-    return (
-      <View style={styles.container}>
-        {this.renderMarkdownView(text)}
-      </View>
-    );
-  }
-
-  parse(text: string) {
-    if (!text || !text.length) return;
-    text = text.replace(/\n/g, '↵\n');
-    let data = this.execType(text, this.findNumberedList.bind(this));
-    data = this.execType(data, this.findBulletList.bind(this));
-    data = this.execType(data, rulers.findHyperlinks.bind(this));
-    data = this.execType(data, this.findItalic.bind(this));
-    data = this.execType(data, this.findBold.bind(this));
-
-    if (Array.isArray(data)) {
-      data = flatArray(data);
-      data = this.replaceEnter(data);
+class Markdown extends Component {
+    static propTypes = {
+        debug: PropTypes.bool,
+        parseInline: PropTypes.bool,
+        markdownStyles: PropTypes.object,
+        useDefaultStyles: PropTypes.bool,
+        renderImage: PropTypes.func,
+        renderLink: PropTypes.func,
+        renderListBullet: PropTypes.func,
     }
 
-    return data;
-  }
+    static defaultProps = {
+        debug: false,
+        useDefaultStyles: true,
+        parseInline: false,
+        markdownStyles: {}
+    }
 
-  replaceEnter(data: any) {
-    return data.map(e => {
-      if (typeof e == "string") {
-        return e.replace(/↵/g, '');
-      } else if (typeof e == "object" && typeof e.text == "string") {
-        e.text = e.text.replace(/↵/g, '');
-        return e;
-      } else if (Array.isArray(e.text)) {
-        return {
-          type: e.type,
-          link: e.link,
-          text: this.replaceEnter.call(this, e.text)
+    constructor(props) {
+        super(props);
+
+        const rules = SimpleMarkdown.defaultRules;
+        this.parser = SimpleMarkdown.parserFor(rules);
+        this.reactOutput = SimpleMarkdown.reactFor(SimpleMarkdown.ruleOutput(rules, 'react'));
+        const blockSource = this.props.children + '\n\n';
+        const parseTree = this.parser(blockSource, { inline: this.props.parseInline });
+        const outputResult = this.reactOutput(parseTree);
+
+        const defaultStyles = this.props.useDefaultStyles && styles ? styles : {};
+        const _styles = StyleSheet.create(Object.assign(defaultStyles, this.props.markdownStyles));
+
+        this.state = {
+            syntaxTree: outputResult,
+            styles: _styles
         };
-      }
-      return e;
-    });
-  }
-
-  execType(data: MdData, func: any) {
-    if (typeof data == "string") {
-      return func(data);
-    } else if (Array.isArray(data)) {
-      return data.map(e => this.execType(e, func));
-    } else if (typeof data == "object") {
-      return {
-        type: data.type,
-        link: data.link,
-        text: this.execType(data.text, func),
-      }
     }
-  }
 
-  findBold(text: string) {
-    return this.find(/\*\*([^\n*]+)\*\*/, 'bold', text);
-  }
+    componentWillReceiveProps(nextProps) {
 
-  findItalic(text:string) {
-    return this.find(/_([^\n_]+)_/, 'italic', text);
-  }
+        let newState = {};
 
-  find(reg : any, type: string, text: string) {
-    const out = [];
-    let loop = true;
-    while (loop && text.length) {
-      let res = reg.exec(text);
-      if (res) {
-        out.push(text.slice(0, res.index));
-        out.push({
-          type: type,
-          text: res[1],
+        if (nextProps.children !== this.props.children) {
+            const blockSource = nextProps.children + '\n\n';
+            const parseTree = this.parser(blockSource, { inline: this.props.parseInline });
+            const outputResult = this.reactOutput(parseTree);
+
+            newState.syntaxTree = outputResult;
+        }
+
+        if (nextProps.markdownStyles !== this.props.markdownStyles) {
+            const defaultStyles = this.props.useDefaultStyles && styles ? styles : {};
+            newState.styles = StyleSheet.create(Object.assign(defaultStyles, nextProps.markdownStyles));
+        }
+
+        if (Object.keys(newState).length !== 0) {
+            this.setState(newState);
+        }
+    }
+
+    shouldComponentUpdate(nextProps) {
+        return this.props.children !== nextProps.children || this.props.markdownStyles !== nextProps.markdownStyles;
+    }
+
+    renderImage(node, key) {
+        const { styles } = this.state;
+
+        if (this.props.renderImage) {
+            return this.props.renderImage(node.props.src, node.props.alt, node.props.title);
+        }
+
+        return (
+            <View style={styles.imageWrapper} key={'imageWrapper_' + key}>
+                <Image source={{ uri: node.props.src }} style={styles.image} />
+            </View>
+        );
+    }
+
+    renderLine(node, key) {
+        const { styles } = this.state;
+
+        return (
+            <View style={styles.hr} key={'hr_' + key} />
+        );
+    }
+
+    renderList(node, key, ordered) {
+
+        const { styles } = this.state;
+
+        return (
+            <View key={'list_' + key} style={styles.list}>
+                {this.renderNodes(node.props.children, key, { ordered })}
+            </View>
+        );
+    }
+
+    renderListBullet(ordered, index) {
+
+        const { styles } = this.state;
+
+        if (ordered) {
+            return (
+                <Text key={'listBullet_' + index} style={styles.listItemNumber}>{index + 1 + '.'}</Text>
+            );
+        }
+
+        return (
+            <View key={'listBullet_' + index} style={styles.listItemBullet} />
+        );
+    }
+
+    renderListItem(node, key, index, extras) {
+
+        const { styles } = this.state;
+
+        let children = this.renderNodes(node.props.children, key, extras);
+
+        return (
+            <View style={styles.listItem} key={'listItem_' + key}>
+                {this.props.renderListBullet ? this.props.renderListBullet(extras.ordered, index) : this.renderListBullet(extras.ordered, index)}
+                <View key={'listItemContent_' + key} style={styles.listItemContent}>
+                    {children}
+                </View>
+            </View>
+        );
+    }
+
+    renderText(node, key, extras) {
+
+        const { styles } = this.state;
+
+        let style = (extras && extras.style) ? [styles.text].concat(extras.style) : styles.text;
+
+        if (node.props) {
+            return (
+                <Text key={key} style={style}>
+                    {this.renderNodes(node.props.children, key, extras)}
+                </Text>
+            );
+        } else {
+            return (
+                <Text key={key} style={style}>{node}</Text>
+            );
+        }
+    }
+
+    renderLink(node, key) {
+
+        const { styles } = this.state;
+        let extras = Utils.concatStyles(null, styles.link);
+        let children = this.renderNodes(node.props.children, key, extras);
+
+        if (this.props.renderLink) {
+            return this.props.renderLink(node.props.href, node.props.title, children);
+        }
+
+        return (
+            <TouchableOpacity style={styles.linkWrapper} key={'linkWrapper_' + key} onPress={() => Linking.openURL(node.props.href).catch(() => { })}>
+                {children}
+            </TouchableOpacity>
+        );
+    }
+
+    renderBlockQuote(node, key, extras) {
+        extras = extras ? Object.assign(extras, { blockQuote: true }) : { blockQuote: true };
+        return this.renderBlock(node, key, extras);
+    }
+
+    renderBlock(node, key, extras) {
+        const { styles } = this.state;
+
+        let style = [styles.block];
+        let isBlockQuote;
+        if (extras && extras.blockQuote) {
+            isBlockQuote = true;
+
+            /* Ensure that blockQuote style is applied only once, and not for
+             * all nested components as well (unless there is a nested blockQuote)
+             */
+            delete extras.blockQuote;
+        }
+        const nodes = this.renderNodes(node.props.children, key, extras);
+
+        if (isBlockQuote) {
+            style.push(styles.blockQuote)
+            return (
+                <View key={'blockQuote_' + key} style={[styles.block, styles.blockQuote]}>
+                    <Text>{nodes}</Text>
+                </View>
+            );
+        }
+        else {
+            return (
+                <View key={'block_' + key} style={styles.block}>
+                    {nodes}
+                </View>
+            );
+        }
+    }
+
+    renderNode(node, key, index, extras) {
+        if (node == null || node == "null" || node == "undefined" || node == "") {
+            return null;
+        }
+
+        const { styles } = this.state;
+
+
+        switch (node.type) {
+            case 'h1': return this.renderText(node, key, Utils.concatStyles(extras, styles.h1));
+            case 'h2': return this.renderText(node, key, Utils.concatStyles(extras, styles.h2));
+            case 'h3': return this.renderText(node, key, Utils.concatStyles(extras, styles.h3));
+            case 'h4': return this.renderText(node, key, Utils.concatStyles(extras, styles.h4))
+            case 'h5': return this.renderText(node, key, Utils.concatStyles(extras, styles.h5));
+            case 'h6': return this.renderText(node, key, Utils.concatStyles(extras, styles.h6));
+            case 'hr': return this.renderLine(node, key);
+            case 'div': return this.renderBlock(node, key, extras);
+            case 'ul': return this.renderList(node, key, false);
+            case 'ol': return this.renderList(node, key, true);
+            case 'li': return this.renderListItem(node, key, index, extras);
+            case 'a': return this.renderLink(node, key);
+            case 'img': return this.renderImage(node, key);
+            case 'strong': return this.renderText(node, key, Utils.concatStyles(extras, styles.strong));
+            case 'del': return this.renderText(node, key, Utils.concatStyles(extras, styles.del));
+            case 'em': return this.renderText(node, key, Utils.concatStyles(extras, styles.em));
+            case 'u': return this.renderText(node, key, Utils.concatStyles(extras, styles.u));
+            case 'blockquote': return this.renderBlockQuote(node, key);
+            case undefined: return this.renderText(node, key, extras);
+            default: if (this.props.debug) console.log('Node type ' + node.type + ' is not supported'); return null;
+        }
+    }
+
+    renderNodes(nodes, key, extras) {
+        return nodes.map((node, index) => {
+            const newKey = key ? key + '_' + index : index + '';
+            return this.renderNode(node, newKey, index, extras);
         });
-        text = text.slice(res.index + res[0].length);
-      } else {
-        loop = false;
-      }
     }
-    if (!out.length) {
-      return text;
-    }
-    if (text.length) {
-      out.push(text);
-    }
-    if (out.length == 1) {
-      return out[0];
-    }
-    return out;
-  }
 
-  getNestedRegexp(level: number) {
-    return new RegExp('^(?=\\s{'+level+'}\\-).*','m');
-  }
+    render() {
+        let content = this.renderNodes(this.state.syntaxTree, null, null);
+        console.log('111');
+        if (this.props.debug) {
+            console.log('\n\n==== LOGGING NODE TREE ===');
+            Utils.logDebug(content);
+        }
 
-  findBulletList(text: string) {
-    return this.findBullet(this.getNestedRegexp(0), 'bullet', text);
-  }
-
-  findBullet(reg : any, type: string, text: string) {
-    const out = [];
-    let loop = true;
-    while (loop && text.length) {
-      let res = reg.exec(text);
-      if (res) {
-        out.push(text.slice(0, res.index));
-        out.push({
-          type: type,
-          text: res[0].replace('- ', ''),
-        });
-        text = text.slice(res.index + res[0].length);
-      } else {
-        loop = false;
-      }
+        return (
+            <View {...this.props}>
+                {content}
+            </View>
+        );
     }
-    if (!out.length) {
-      return text;
-    }
-    if (text.length) {
-      out.push(text);
-    }
-    if (out.length == 1) {
-      return out[0];
-    }
-    return out;
-  }
-
-  findNumberedList(text: string) {
-    return this.find(/(\d+. .*)/, 'numbered', text);
-  }
-
-  findHyperlinks(text: string) {
-    const out = [];
-    let loop = true;
-    let reg = new RegExp(/\[(.+?)\]\((.+?)\)/);
-    while (loop && text.length) {
-      let res = reg.exec(text);
-      if (res) {
-        // res[0] ==> [Adaptive Cards](http://adaptivecards.io)
-        let title = /\[(.+?)\]/.exec(res[0]); // Adaptive Cards
-        let link = /\((.+?)\)/.exec(res[0]);      // http://adaptivecards.io
-        out.push(text.slice(0, res.index));
-        out.push({
-          type: 'hyperlinks',
-          text: title[1],
-          link: link[1],
-        });
-        text = text.slice(res.index + res[0].length);
-      } else {
-        loop = false;
-      }
-    }
-    if (!out.length) {
-      return text;
-    }
-    if (text.length) {
-      out.push(text);
-    }
-    if (out.length == 1) {
-      return out[0];
-    }
-    return out;
-  }
-
-  renderList(data: MdData, i?) {
-    i = !i ? 0 : i++;
-    if (!Array.isArray(data)) {
-      return;
-    } 
-    let list: MdData[] = [];
-    for (; i < data.length; ++i) {
-      if (!listtype.includes(data[i].type)) {
-        break;
-      } else {
-        list.push(data[i]);
-      }
-    }
-    return (
-      <View>
-        <View>
-          {this.createText(list)}
-        </View>
-        {this.renderMarkdownView(data, i)}
-      </View>
-    );
-  }
-
-  renderText(data: MdData, i?) {
-    i = !i ? 0 : i++;
-    if (!Array.isArray(data)) {
-      return;
-    } 
-    let list: MdData[] = [];
-    for (; i < data.length; ++i) {
-      if (listtype.includes(data[i].type)) {
-        break;
-      } else {
-        list.push(data[i]);
-      }
-    }
-    return (
-      <View>
-        <Text>
-          {this.createText(list)}
-        </Text>
-        {this.renderMarkdownView(data, i)}
-      </View>
-    );
-  }
-
-  renderMarkdownView(data: MdData, i?) {
-    i = !i ? 0 : i++;
-    if (typeof data == "string") {
-      return this.createText(data, i);
-    } else if (Array.isArray(data)) {
-      if (i >= data.length) {
-        return;
-      }
-      
-      if (listtype.includes(data[i].type)) {
-        return this.renderList(data, i);
-      } else {
-        return this.renderText(data, i);
-      }
-    } else if (typeof data === "object") {
-      if (listtype.includes(data.type)) {
-        return this.renderList(data);
-      } else {
-        return this.renderText(data);
-      }
-    }
-  }
-
-  createText(data: any, i?) {
-    i = !i ? 0 : i++;
-    if (typeof data == "string") {
-      return <SimpleText key={i} value={data}/>
-    } else if (Array.isArray(data)) {
-      return data.map(this.createText.bind(this));
-    } else if (typeof data == "object") {
-      let value;
-      let link :string;
-      if (data.type === "hyperlinks") {
-        link = data.link;
-      }
-      if (typeof data.text == "string") {
-        value = data.text;
-      } else {
-        value = this.createText.call(this, data.text, i);
-      }
-      const actions = {
-        'bold': (value: string) => <BoldText key={i} value={value}/>,
-        'italic': (value: string) => <ItalicText key={i} value={value}/>,
-        'bullet': (value: string) => <BulletText key={i} value={value}/>,
-        'numbered': (value: string) => <NumberedText key={i} value={value}/>,
-        'hyperlinks': (value: string) => <Hyperlinks link={link} key={i} value={value}/>,
-      };
-      return actions[data.type](value);
-    }
-  }
 }
 
-const SimpleText = ({value}) => <Text>{value}</Text>;
-const BoldText = ({value}) => <Text style={styles.bold}>{value}</Text>;
-const ItalicText = ({value}) => <Text style={styles.italic}>{value}</Text>;
-
-interface BulletProp {
-  value: string;
-}
-
-class BulletText extends React.Component<BulletProp> {
-  render() {
-    return (
-      <View style={styles.bulletContainer}>
-        <Text style={styles.bulletPrefix}>
-          {'\t' + UNORDERED_PREFIX}
-        </Text>
-        <Text style={styles.bullet}>
-          {this.props.value}
-        </Text>
-      </View>
-    );
-  }
-}
-
-interface HyperProp {
-  link: string;
-  value: string;
-}
-
-class Hyperlinks extends React.Component<HyperProp> {
-  
-  render() {
-    return (
-      <Text style={styles.link} onPress={() => this.openUrl(this.props.link)} >{this.props.value}</Text>
-    );
-  }
-
-  openUrl = (url: string) => {
-    Linking.openURL(url).catch(error =>
-      console.warn('An error occurred: ', error),
-    )
-  }
-}
+export default Markdown;

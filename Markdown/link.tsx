@@ -5,7 +5,6 @@ import {
   View,
 } from 'react-native';
 import styles from './styles';
-import { listData } from './mddata';
 
 interface HyperProp {
   link: string;
