@@ -2,27 +2,24 @@ import * as React from 'react';
 import {
   Linking,
   Text,
-  View,
 } from 'react-native';
-import styles from './styles';
+import { Styles } from './Styles';
 
 interface HyperProp {
   link: string;
   value: string;
 }
 
-class Link extends React.Component<HyperProp> {
-  render() {
+export class Link extends React.Component<HyperProp> {
+  public render() {
     return (
-      <Text style={styles.link} onPress={() => this.openUrl(this.props.link)} >{this.props.value}</Text>
+      <Text style={Styles.link} onPress={() => this.openUrl(this.props.link)} >{this.props.value}</Text>
     );
   }
 
-  openUrl = (url: string) => {
+  private openUrl = (url: string) => {
     Linking.openURL(url).catch(error =>
       console.warn('An error occurred: ', error),
-    )
+    );
   }
 }
-
-export default Link;

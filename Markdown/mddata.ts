@@ -1,24 +1,22 @@
-export enum types {
+export enum Types {
   simple,
   bold,
   italic,
   orderlist,
   unorderlist,
   hyperlinks,
-};
-
-export type enableDataType =  textData | linkData | Array<any>;
+}
 
 export interface MdData {
   data: RegExpExecArray;
-  type: types;
+  type: Types;
 }
 
-export interface textData {
-  type: types;
-  data: string | textData | [];
+export interface TextData {
+  type: Types;
+  data: any;
 }
 
-export interface linkData extends textData {
+export interface LinkData extends TextData {
   link: string;
 }

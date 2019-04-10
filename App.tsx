@@ -11,8 +11,6 @@ import { Component } from 'react';
 import {Platform, StyleSheet, Text, View, Linking} from 'react-native';
 import { Markdown } from './Markdown/Markdown';
 
-const content = require('./Markdown/markdown.json');
-
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
   android:
@@ -64,11 +62,10 @@ const text7 = `
 ` ;
 
 const text8 = `
-5. Numbered\r2. List\r3. [Adaptive Cards](http://adaptivecards.io)List
+dfdfdf
 ` ;
 
 const text = `
-s
 1. Bulletbul_italic_letbulletbul etbutbulletbu[**Adaptive** _Cards_](http://adaptivecards.io)bulletbulletbulletbulletbulletbulletbulletbulletbulletbullet\r2. List\r3. List
 - Item 1\r- Item 2\r- Item 3
 This is some **bold** text
@@ -84,8 +81,7 @@ export default class App extends Component<Props> {
     return (
         <View style={styles.container}>
           <Markdown styles={styles.markdown} >
-            {text8}
-            
+            {text}
           </Markdown>
         </View>
     );

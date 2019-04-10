@@ -1,10 +1,10 @@
-import { types, enableDataType, MdData} from './mddata'
+import { MdData, Types} from './Mddata';
 
 var CR_NEWLINE_R = /\r\n?/g;
 var TAB_R = /\t/g;
 var FORMFEED_R = /\f/g;
 
-export const rulers = {
+export const Rules = {
   regexobject: {
     headline: /^(\#{1,6})([^\#\n]+)$/m,
     code: /\s\`\`\`\n?([^`]+)\`\`\`/g,
@@ -23,8 +23,8 @@ export const rulers = {
     url2: /[ \t\n]([a-zA-Z]{2,16}:\/\/[a-zA-Z0-9@:%_\+.~#?&=]{2,256}.[a-z]{2,4}\b(\/[\-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)?)[ \t\n]/g
   },
   
-  parse(text: string) :any {
-    if (!text || !text.length || typeof text !== "string") {
+  parse(text: string) : any {
+    if (!text || !text.length || typeof text !== 'string') {
       return;
     }
     
@@ -45,11 +45,11 @@ export const rulers = {
   },
 
   execType(data: any, func: any): any {
-    if (typeof data == "string") {
+    if (typeof data === 'string') {
       return func(data);
     } else if (Array.isArray(data)) {
       return data.map(e => this.execType(e, func));
-    } else if (typeof data == "object") {
+    } else if (typeof data === 'object') {
       data.data = this.execType(data.data, func);
       return data;
     }
@@ -67,18 +67,17 @@ export const rulers = {
       
       text = text.slice(stra.index, text.length);
       let helper = stra[0].split('\n');
-      // TODO: start from No.1 currently, maybe change from first list number
       let items = [];
       for (let i = 0; i < helper.length; i++) {
         if ((line = /^((\s*)(\d(\.|\))) ([^\n]+))/.exec(helper[i])) !== null) {
           items.push({
-            type: types.simple,
+            type: Types.simple,
             data: line[5],
           });
         }
       }
       out.push({
-        type: types.orderlist,
+        type: Types.orderlist,
         data: items,
       });
       text = text.replace(stra[0], '\n');
@@ -93,13 +92,13 @@ export const rulers = {
 
   parseUnorderList(text: string) {
     let out = [];
-    let stra, line, type, title;
+    let stra, line;
     while ((stra = /^((\s*((\*|\-)|\d(\.|\))) [^\n]+)\n)+/gm.exec(text)) !== null) {
       let before = text.slice(0, stra.index);
       if (before.length) {
         out.push({
-          // regard text that left is simple <text/>
-          type: types.simple,
+          // regard text that left is simple text
+          type: Types.simple,
           data: before,
         });
       }
@@ -110,13 +109,13 @@ export const rulers = {
       for (let i = 0; i < helper.length; i++) {
         if ((line = /^((\s*)((\*|\-)|\d(\.|\))) ([^\n]+))/.exec(helper[i])) !== null) {
           items.push({
-            type: types.simple,
+            type: Types.simple,
             data: line[6],
           });
         }
       }
       out.push({
-        type: types.unorderlist,
+        type: Types.unorderlist,
         data: items,
       });
       text = text.replace(stra[0], '\n');
@@ -124,7 +123,7 @@ export const rulers = {
     
     if (text.length) {
       out.push({
-        type: types.simple,
+        type: Types.simple,
         data: text,
       });
     }
@@ -150,7 +149,7 @@ export const rulers = {
       }
       
       out.push({
-        type: types.hyperlinks,
+        type: Types.hyperlinks,
         link: regData[2],
         data: regData[1],
       });
@@ -165,7 +164,7 @@ export const rulers = {
   },
 
   /* bold and italic */
-  parseText(text: string) :any {
+  parseText(text: string) : any {
     if (this.findNextType(text) === null) {
       return text;
     }
@@ -213,14 +212,14 @@ export const rulers = {
   },
 
   findBold(text: string) {
-    return this.find(rulers.regexobject.bold, types.bold, text);
+    return this.find(Rules.regexobject.bold, Types.bold, text);
   },
 
-  findItalic(text:string) {
-    return this.find(this.regexobject.italic, types.italic, text);
+  findItalic(text: string) {
+    return this.find(this.regexobject.italic, Types.italic, text);
   },
 
-  find(reg : any, type: types, text: string) {
+  find(reg : any, type: Types, text: string) {
     let regRes = reg.exec(text);
     if (regRes) {
       let ret: MdData = {

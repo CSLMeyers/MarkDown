@@ -6,7 +6,7 @@
 	<integer>9</integer>
 	<key>logs</key>
 	<dict>
-		<key>73CECB4D-66D2-4A95-AAEF-16A861748B54</key>
+		<key>C527C4C9-0505-43B0-84FB-A2E0C1A32D65</key>
 		<dict>
 			<key>className</key>
 			<string>IDECommandLineBuildLog</string>
@@ -15,7 +15,7 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
 			<key>fileName</key>
-			<string>73CECB4D-66D2-4A95-AAEF-16A861748B54.xcactivitylog</string>
+			<string>C527C4C9-0505-43B0-84FB-A2E0C1A32D65.xcactivitylog</string>
 			<key>highLevelStatus</key>
 			<string>W</string>
 			<key>schemeIdentifier-containerName</key>
@@ -27,42 +27,13 @@
 			<key>signature</key>
 			<string>Building project TSDemo with scheme TSDemo and configuration Debug</string>
 			<key>timeStartedRecording</key>
-			<real>576512529.26717699</real>
+			<real>576589846.71490502</real>
 			<key>timeStoppedRecording</key>
-			<real>576512530.63624799</real>
+			<real>576589847.76726997</real>
 			<key>title</key>
 			<string>Building project TSDemo with scheme TSDemo and configuration Debug</string>
 			<key>uniqueIdentifier</key>
-			<string>73CECB4D-66D2-4A95-AAEF-16A861748B54</string>
-		</dict>
-		<key>7C72C3ED-7B28-481D-9C03-DA1E8C098B9D</key>
-		<dict>
-			<key>className</key>
-			<string>IDECommandLineBuildLog</string>
-			<key>documentTypeString</key>
-			<string>&lt;nil&gt;</string>
-			<key>domainType</key>
-			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
-			<key>fileName</key>
-			<string>7C72C3ED-7B28-481D-9C03-DA1E8C098B9D.xcactivitylog</string>
-			<key>highLevelStatus</key>
-			<string>W</string>
-			<key>schemeIdentifier-containerName</key>
-			<string>TSDemo project</string>
-			<key>schemeIdentifier-schemeName</key>
-			<string>TSDemo</string>
-			<key>schemeIdentifier-sharedScheme</key>
-			<integer>1</integer>
-			<key>signature</key>
-			<string>Building project TSDemo with scheme TSDemo and configuration Debug</string>
-			<key>timeStartedRecording</key>
-			<real>576472925.09677398</real>
-			<key>timeStoppedRecording</key>
-			<real>576472925.954211</real>
-			<key>title</key>
-			<string>Building project TSDemo with scheme TSDemo and configuration Debug</string>
-			<key>uniqueIdentifier</key>
-			<string>7C72C3ED-7B28-481D-9C03-DA1E8C098B9D</string>
+			<string>C527C4C9-0505-43B0-84FB-A2E0C1A32D65</string>
 		</dict>
 	</dict>
 </dict>

@@ -3,7 +3,7 @@ import {
   TextStyle,
 } from 'react-native';
 
-const styles = StyleSheet.create({
+export const Styles = StyleSheet.create({
   container: {
     flex: 1,
     height: 200,
@@ -46,4 +46,4 @@ const styles = StyleSheet.create({
   } as TextStyle,  
 });
 
-export default styles;
+
