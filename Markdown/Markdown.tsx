@@ -97,10 +97,6 @@ export class Markdown extends React.Component<MarkdownProp> {
 
   private renderLink(node: LinkData, key: string, style: TextStyle): any {
     if (typeof node.data === 'string') {
-      // return (
-      //   <Link key={key} link={node.link} value={node.data}/>
-      //   <Text style={Styles.link} onPress={() => this.openUrl(this.props.link)} >{this.props.value}</Text>
-      // );
       return (
         <Text style={Styles.link} onPress={() => this.openUrl(node.link)} >{node.data}</Text>
       );
