@@ -11,7 +11,8 @@ export const Rules = {
     bold: /\*\*([^\n*]+)\*\*/,
     italic: /_([^\n_]+)_/,
     hr: /^(?:([\*\-_] ?)+)\1\1$/gm,
-    lists: /^((\s*((\*|\-)|\d(\.|\))) [^\n]+)\n)+/gm,
+    lists: /^((\s*((\*|\-)|\d(\.|\))) [^\n]+))+/gm,
+    listItem: /^((\s*)((\*|\-)|\d(\.|\))) ([^\n]+))/,
     bolditalic: /(?:([\*_~]{1,3}))([^\*_~\n]+[^\*_~\s])\1/g,
     links: /\[([^\]<>]+)\]\(([^ \)<>]+)( "[^\(\)\"]+")?\)/,
     reflinks: /\[([^\]]+)\]\[([^\]]+)\]/g,
@@ -35,7 +36,6 @@ export const Rules = {
     
     // parse list
     let out = this.execType(text, this.parseList.bind(this));
-    out = this.execType(out, this.parseUnorderList.bind(this));
     // parse link
     out = this.execType(out, this.parseLink.bind(this));
     // parse normal text
@@ -58,43 +58,10 @@ export const Rules = {
   // Recursive can't express the tree structure, so instead use the loop
   parseList(text: string) {
     let out = [];
-    let stra, line;
-    while ((stra = /^((\s*(\d(\.|\))) [^\n]+)\n)+/gm.exec(text)) !== null) {
-      let before = text.slice(0, stra.index);
-      if (before.length) {
-        out.push(before);
-      }
-      
-      text = text.slice(stra.index, text.length);
-      let helper = stra[0].split('\n');
-      let items = [];
-      for (let i = 0; i < helper.length; i++) {
-        if ((line = /^((\s*)(\d(\.|\))) ([^\n]+))/.exec(helper[i])) !== null) {
-          items.push({
-            type: Types.simple,
-            data: line[5],
-          });
-        }
-      }
-      out.push({
-        type: Types.orderlist,
-        data: items,
-      });
-      text = text.replace(stra[0], '\n');
-    }
-    
-    if (text.length) {
-      out.push(text);
-    }
-
-    return out;
-  },
-
-  parseUnorderList(text: string) {
-    let out = [];
-    let stra, line;
-    while ((stra = /^((\s*((\*|\-)|\d(\.|\))) [^\n]+)\n)+/gm.exec(text)) !== null) {
-      let before = text.slice(0, stra.index);
+    let stra;
+    while ((stra = /^((\s*((\*|\-)|\d(\.|\))) [^\n]+))+/gm.exec(text)) !== null) {
+      // list has nature '\n'
+      let before = text.slice(0, stra.index).replace(/\n/g, '');
       if (before.length) {
         out.push({
           // regard text that left is simple text
@@ -102,23 +69,59 @@ export const Rules = {
           data: before,
         });
       }
-      
-      text = text.slice(stra.index, text.length);
+
       let helper = stra[0].split('\n');
-      let items = [];
+      let listItem: RegExpExecArray | null;
+      let orderItems =[];
+      let unorderItems = [];
+      // list may include order and unorder item, and separate them.
       for (let i = 0; i < helper.length; i++) {
-        if ((line = /^((\s*)((\*|\-)|\d(\.|\))) ([^\n]+))/.exec(helper[i])) !== null) {
-          items.push({
-            type: Types.simple,
-            data: line[6],
-          });
+        if ((listItem = this.regexobject.listItem.exec(helper[i])) !== null) {
+          if ((listItem[0].trim().substr(0, 1) === '*') || (listItem[0].trim().substr(0, 1) === '-')) {
+            if (orderItems.length) {
+              out.push({
+                type: Types.orderlist,
+                data: orderItems,
+              });
+              orderItems = [];
+            }
+            unorderItems.push({
+              type: Types.simple,
+              data: listItem[6].trim(),
+            });
+          } else {
+            if (unorderItems.length) {
+              out.push({
+                type: Types.unorderlist,
+                data: unorderItems,
+              });
+              unorderItems = [];
+            }
+            orderItems.push({
+              type: Types.simple,
+              data: listItem[6].trim(),
+            });
+          }
         }
       }
-      out.push({
-        type: Types.unorderlist,
-        data: items,
-      });
-      text = text.replace(stra[0], '\n');
+
+      if (orderItems.length) {
+        out.push({
+          type: Types.orderlist,
+          data: orderItems,
+        });
+        unorderItems = [];
+      }
+
+      if (unorderItems.length) {
+        out.push({
+          type: Types.unorderlist,
+          data: unorderItems,
+        });
+        unorderItems = [];
+      }
+
+      text = text.slice(stra.index + stra[0].length, text.length);
     }
     
     if (text.length) {
@@ -219,7 +222,7 @@ export const Rules = {
     return this.find(this.regexobject.italic, Types.italic, text);
   },
 
-  find(reg : any, type: Types, text: string) {
+  find(reg : RegExp, type: Types, text: string) {
     let regRes = reg.exec(text);
     if (regRes) {
       let ret: MdData = {

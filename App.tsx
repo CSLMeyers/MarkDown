@@ -57,20 +57,16 @@ const text6 = `
 const text7 = `
 5. Numbered\r2. List\r3. List
 - Bullet\r- List
-5. Numbered\r2. List\r3. List
+sss
 - Bullet\r- List
 ` ;
 
-const text8 = `
-dfdfdf
-` ;
+const text8 = "Bulletbu\r- Now that\r1. we have defined the main rules and\r2. features of\r- the format, \r3. we need to produce\r4)  a schema and publish it to GitHub. The schema will be the starting point of our reference documentation.";
 
 const text = `
-1. Bulletbul_italic_letbulletbul etbutbulletbu[**Adaptive** _Cards_](http://adaptivecards.io)bulletbulletbulletbulletbulletbulletbulletbulletbulletbullet\r2. List\r3. List
-- Item 1\r- Item 2\r- Item 3
-This is some **bold** text
 This is some _italic_ text
 - Bulletbul_italic_letbulletbul etbutbulletbu[**Adaptive** _Cards_](http://adaptivecards.io)bulletbulletbulletbulletbulletbulletbulletbulletbulletbullet \r- List
+This is some _italic_ text
 - Item 1\r- Item 2\r- Item 3
 Check out [**百度**](http://baidu.com)link[Adaptive Cards](http://adaptivecards.io)
 ` ;

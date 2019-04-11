@@ -7,6 +7,7 @@ import { Rules } from './Rulers';
 import { Styles } from './Styles';
 
 import {
+  Linking,
   Text,
   TextStyle,
   View,
@@ -32,26 +33,32 @@ export class Markdown extends React.Component<MarkdownProp> {
     
     let content = this.renderNode(data);
     return (
-      <View style={Styles.container}>
+      <View>
         {content}
       </View>
     );
   }
 
-  private renderList(data: [], order: boolean) {
+  private renderList(data: [], key: string, order: boolean): JSX.Element {
     if (!Array.isArray(data)) {
       return (
         <Text>{'List should be array!'}</Text>
       );
     }
 
-    return data.map((node, index) => {
+    let listItems = data.map((node, index) => {
       const newKey = index + '';
       return this.renderListItem(node, newKey, index, order);
     });
+
+    return (
+      <View style={Styles.list} key={key} >
+          {listItems}
+      </View>
+    );
   }
 
-  private renderListBullet(ordered: boolean, index: number) {
+  private renderListBullet(ordered: boolean, index: number): JSX.Element {
     if (ordered) {
         return (
             <Text key={'listBullet_' + index} style={Styles.listItemNumber}>{index + 1 + '.'}</Text>
@@ -59,11 +66,11 @@ export class Markdown extends React.Component<MarkdownProp> {
     }
 
     return (
-        <Text key={'listBullet_' + index} style={Styles.listItemBullet}>{'\u2022  '}</Text>
+        <Text key={'listBullet_' + index} style={Styles.listItemBullet}>{'\u2022 '}</Text>
     );
   }
 
-  private renderListItem(node: any, key: string, index: number, ordered: boolean) {
+  private renderListItem(node: any, key: string, index: number, ordered: boolean): JSX.Element {
     let content = this.renderNode(node, index);
 
     return (
@@ -90,12 +97,16 @@ export class Markdown extends React.Component<MarkdownProp> {
 
   private renderLink(node: LinkData, key: string, style: TextStyle): any {
     if (typeof node.data === 'string') {
+      // return (
+      //   <Link key={key} link={node.link} value={node.data}/>
+      //   <Text style={Styles.link} onPress={() => this.openUrl(this.props.link)} >{this.props.value}</Text>
+      // );
       return (
-        <Link key={key} link={node.link} value={node.data}/>
+        <Text style={Styles.link} onPress={() => this.openUrl(node.link)} >{node.data}</Text>
       );
     } else {
       return (
-        <Link key={key} link={node.link} value={this.renderNode(node.data)}/>
+        <Text style={Styles.link} onPress={() => this.openUrl(node.link)} >{this.renderNode(node.data)}</Text>
       );
     }
   }
@@ -110,11 +121,17 @@ export class Markdown extends React.Component<MarkdownProp> {
         case Types.bold: return this.renderText(node, 'bold_' + i, mergedStyles.bold);
         case Types.italic: return this.renderText(node, 'italic_' + i, mergedStyles.italic);
         case Types.hyperlinks: return this.renderLink((node as LinkData), 'link_' + i, mergedStyles.link);
-        case Types.orderlist: return this.renderList(node.data, true);
-        case Types.unorderlist: return this.renderList(node.data, false);
+        case Types.orderlist: return this.renderList(node.data, 'orderlist_' + i, true);
+        case Types.unorderlist: return this.renderList(node.data, 'unorderlist_' + i, false);
         case undefined: return this.renderText(node, 'simple_' + i, mergedStyles.simple);
         default: return (<Text>{'data.type' + node.type + ' is not supported!'}</Text>);
       }
     }
+  }
+
+  private openUrl = (url: string) => {
+    Linking.openURL(url).catch(error =>
+      console.warn('An error occurred: ', error),
+    );
   }
 }

@@ -17,6 +17,9 @@ export const Styles = StyleSheet.create({
   italic: {
     fontStyle: 'italic',
   } as TextStyle,
+  list: {
+    marginTop: 20,
+  } as TextStyle,
   listItem: {
     flexDirection: 'row',
   } as TextStyle,
