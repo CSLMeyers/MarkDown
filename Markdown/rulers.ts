@@ -135,10 +135,6 @@ export const Rules = {
   },
 
   parseLink(text: string): any {
-    if (this.regexobject.links.exec(text) === null) {
-      return text;
-    }
-
     const out = [];
     let regData: RegExpExecArray | null;
 
@@ -168,10 +164,6 @@ export const Rules = {
 
   /* bold and italic */
   parseText(text: string) : any {
-    if (this.findNextType(text) === null) {
-      return text;
-    }
-
     const out = [];
     let regData: MdData | null;
     while ((regData = this.findNextType(text)) !== null) {

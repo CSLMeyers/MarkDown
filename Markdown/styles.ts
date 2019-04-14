@@ -11,6 +11,9 @@ export const Styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#F5FCFF',
   },
+  simple: {
+    
+  } as TextStyle,
   bold: {
     fontWeight: 'bold',
   } as TextStyle,
@@ -24,6 +27,7 @@ export const Styles = StyleSheet.create({
     flexDirection: 'row',
   } as TextStyle,
   listItemContent: {
+    color: 'green',
     paddingRight: 24,
     justifyContent: 'flex-start',
     alignItems: 'flex-start',

@@ -51,7 +51,7 @@ this is [**Adaptive** ssss _Cards_](http://adaptivecards.io)
 ` ;
 
 const text6 = `
-- Bullet\r- Listthis [Adaptive Cards](http://adaptivecards.io)
+[Adaptive **Cards**](http://adaptivecards.io)
 ` ;
 
 const text7 = `
@@ -76,7 +76,7 @@ export default class App extends Component<Props> {
   render() {
     return (
         <View style={styles.container}>
-          <Markdown styles={styles.markdown} >
+          <Markdown markdownStyles={styles.markdown} style={{color: 'black'}} >
             {text}
           </Markdown>
         </View>
