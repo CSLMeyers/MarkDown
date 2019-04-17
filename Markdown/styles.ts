@@ -16,40 +16,30 @@ export const Styles = StyleSheet.create({
   } as TextStyle,
   bold: {
     fontWeight: 'bold',
+    color: 'yellow',
   } as TextStyle,
   italic: {
     fontStyle: 'italic',
   } as TextStyle,
   list: {
-    marginTop: 20,
+    marginTop: 8,
   } as TextStyle,
   listItem: {
     flexDirection: 'row',
   } as TextStyle,
   listItemContent: {
-    color: 'green',
-    paddingRight: 24,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    flexWrap: 'wrap',
+    
   } as TextStyle,
   listItemBullet: {
     paddingLeft: 16,
     paddingRight: 8,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    flexWrap: 'wrap',
   } as TextStyle,
   listItemNumber: {
     paddingLeft: 16,
     paddingRight: 8,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    flexWrap: 'wrap',
   } as TextStyle,
   link: {
     color: 'blue',
-    // textDecorationLine: 'underline',
   } as TextStyle,  
 });
 

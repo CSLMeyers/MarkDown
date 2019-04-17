@@ -44,9 +44,8 @@ This is some **_italic_bold** text
 const text5 = `
 this is why we play.
 This is some **bold** text
-- Item 1\r- Item **bold** text2\r- Item 3
-This is some **bold** text
-2. Numbered\r2. List\r3. List
+- Item 1\r- Item **bold** text2\r- Item 3\r
+2. Numbered\r2. List\r3. List\r
 this is [**Adaptive** ssss _Cards_](http://adaptivecards.io)
 ` ;
 
@@ -56,18 +55,23 @@ const text6 = `
 
 const text7 = `
 5. Numbered\r2. List\r3. List
-- Bullet\r- List
+- Bullet\r- List\r
 sss
-- Bullet\r- List
+- Bullet\r- Listsss
+- Bullet\r- Listsss
+sss
 ` ;
 
 const text8 = "Bulletbu\r- Now that\r1. we have defined the main rules and\r2. features of\r- the format, \r3. we need to produce\r4)  a schema and publish it to GitHub. The schema will be the starting point of our reference documentation.";
+
+const text9 = "";
+
 
 const text = `
 This is some _italic_ text
 - Bulletbul_italic_letbulletbul etbutbulletbu[**Adaptive** _Cards_](http://adaptivecards.io)bulletbulletbulletbulletbulletbulletbulletbulletbulletbullet \r- List
 This is some _italic_ text
-- Item 1\r- Item 2\r- Item 3
+5. Numbered\r2. List\r3. List
 Check out [**百度**](http://baidu.com)link[Adaptive Cards](http://adaptivecards.io)
 ` ;
 
@@ -77,7 +81,7 @@ export default class App extends Component<Props> {
     return (
         <View style={styles.container}>
           <Markdown markdownStyles={styles.markdown} style={{color: 'black'}} >
-            {text}
+            {text9}
           </Markdown>
         </View>
     );

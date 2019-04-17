@@ -23,20 +23,20 @@ interface IProps extends TextProps {
 export class Markdown extends React.Component<IProps> {
 
   public render() { 
+    // merge Styles with customization markdown style
     mergedStyles = merge({}, Styles, this.props.markdownStyles);
   
-    let data = [];
+    let nodes = [];
     const child = Array.isArray(this.props.children) 
                 ? this.props.children.join('') 
                 : this.props.children;
     if (typeof child === 'string') {
-      data = Rules.parse(child);  
+      nodes = Rules.parse(child);  
     }
     
-    let content = this.renderNode(data, 'markdown');
     return (
       <View>
-        {content}
+        {this.renderNode(nodes, 'markdown')}
       </View>
     );
   }
@@ -69,19 +69,16 @@ export class Markdown extends React.Component<IProps> {
     }
   }
 
-  private renderListItem(node: any, key: string, index: number, ordered: boolean, style?: TextStyle): JSX.Element {
-    style = merge({}, style, mergedStyles.listItemContent);
+  private renderListItem(node: any, key: string, index: number, ordered: boolean): JSX.Element {
     return (
         <View style={mergedStyles.listItem} key={key + '_listItem'}>
             {this.renderListBullet(ordered, key, index)}
-            <Text key={key + '_itemContentText'}>
-                {this.renderNode(node, key, style)}
-            </Text>
+            {this.renderNode(node, key + '_itemContentText', mergedStyles.listItemContent)}
         </View>
     );
   }
 
-  private renderLink(node: LinkData, key: string, style: TextStyle): JSX.Element {
+  private renderLink(node: LinkData, key: string, style: StyleProp<TextStyle>): JSX.Element {
     style = merge({}, style, mergedStyles.link);
     return (
       <Text key={key} style={style} onPress={() => this.openUrl(node.link)} >{this.renderNode(node.data, key, style)}</Text>
@@ -89,23 +86,27 @@ export class Markdown extends React.Component<IProps> {
   }
 
   // render simple text.
-  private renderText(node: TextData | string, key: string, markdownStyles: TextStyle): JSX.Element {
+  private renderText(node: TextData | string, key: string, markdownStyles: StyleProp<TextStyle> | null): JSX.Element {
     const { accessible, numberOfLines, style, ellipsizeMode } = this.props; 
-    let curr = merge({}, style, markdownStyles);
+    let currStyle = merge({}, style, markdownStyles);
     return (
       <Text
           key={key}
           accessible={accessible}
-          style={curr}
+          style={currStyle}
           numberOfLines={numberOfLines}
           ellipsizeMode={ellipsizeMode}
       >
-          {typeof node === 'string' ? node : this.renderNode(node, key, curr)}
+          {typeof node === 'string' ? node : this.renderNode(node, key, currStyle)}
       </Text>
     );
   }
 
-  private renderNode(node: any, key: string, style?: any): any {
+  private renderNode(node: any, key: string, style?: StyleProp<TextStyle>): any {
+    if (node == undefined) {
+      return undefined;
+    }
+
     if (Array.isArray(node)) {
       return node.map((item, index) => {
         let childKey: string = key + index.toString();
@@ -116,10 +117,11 @@ export class Markdown extends React.Component<IProps> {
         case Types.simple: return this.renderText(node.data, key + '_simple', style ? merge({}, mergedStyles.simple, style) : mergedStyles.simple);
         case Types.bold: return this.renderText(node.data, key + '_bold', style ? merge({}, style, mergedStyles.bold) : mergedStyles.bold);
         case Types.italic: return this.renderText(node.data, key + '_italic', style ? merge({}, style, mergedStyles.italic) : mergedStyles.italic);
-        case Types.hyperlinks: return this.renderLink((node as LinkData), key + '_link', style ? merge({}, style, mergedStyles.link) : mergedStyles.link);
+        case Types.hyperlinks: return this.renderLink((node as LinkData), key + '_link', style);
+        case Types.itemcontent: return this.renderText(node.data, key + '_link', style ? merge({}, style, mergedStyles.itemcontent) : mergedStyles.itemcontent);
         case Types.orderlist: return this.renderList(node.data, key + '_orderlist', true);
         case Types.unorderlist: return this.renderList(node.data, key + '_unorderlist', false);
-        case undefined/* string */: return this.renderText(node, key + '_string', style ? merge({}, mergedStyles.simple, style) : mergedStyles.simple);
+        case undefined/* string */: return this.renderText(node, key + '_string', style ? style : null);
         default: return (<Text>{'data.type' + node.type + ' is not supported!'}</Text>);
       }
     }

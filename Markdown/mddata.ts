@@ -4,6 +4,7 @@ export enum Types {
   italic,
   orderlist,
   unorderlist,
+  itemcontent,
   hyperlinks,
 }
 

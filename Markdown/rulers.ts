@@ -25,8 +25,8 @@ export const Rules = {
   },
   
   parse(text: string) : any {
-    if (!text || !text.length || typeof text !== 'string') {
-      return;
+    if (typeof text !== 'string') {
+      return undefined;
     }
     
     // Turn various crazy whitespace into easy to process things
@@ -61,7 +61,7 @@ export const Rules = {
     let stra;
     while ((stra = /^((\s*((\*|\-)|\d(\.|\))) [^\n]+))+/gm.exec(text)) !== null) {
       // list has nature '\n'
-      let before = text.slice(0, stra.index).replace(/\n/g, '');
+      let before = text.slice(0, stra.index).trim();
       if (before.length) {
         out.push({
           // regard text that left is simple text
@@ -86,7 +86,7 @@ export const Rules = {
               orderItems = [];
             }
             unorderItems.push({
-              type: Types.simple,
+              type: Types.itemcontent,
               data: listItem[6].trim(),
             });
           } else {
@@ -98,7 +98,7 @@ export const Rules = {
               unorderItems = [];
             }
             orderItems.push({
-              type: Types.simple,
+              type: Types.itemcontent,
               data: listItem[6].trim(),
             });
           }
@@ -121,13 +121,13 @@ export const Rules = {
         unorderItems = [];
       }
 
-      text = text.slice(stra.index + stra[0].length, text.length);
+      text = text.slice(stra.index + stra[0].length, text.length).trim();
     }
     
     if (text.length) {
       out.push({
         type: Types.simple,
-        data: text,
+        data: text.trim(),
       });
     }
 
