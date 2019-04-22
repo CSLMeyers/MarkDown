@@ -81,7 +81,7 @@ export default class App extends Component<Props> {
     return (
         <View style={styles.container}>
           <Markdown markdownStyles={styles.markdown} style={{color: 'black'}} >
-            {text9}
+            {text8}
           </Markdown>
         </View>
     );

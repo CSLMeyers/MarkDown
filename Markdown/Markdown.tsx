@@ -103,7 +103,7 @@ export class Markdown extends React.Component<IProps> {
   }
 
   private renderNode(node: any, key: string, style?: StyleProp<TextStyle>): any {
-    if (node == undefined) {
+    if (node === undefined) {
       return undefined;
     }
 
