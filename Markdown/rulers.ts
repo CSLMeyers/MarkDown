@@ -1,4 +1,5 @@
 import { MdData, Types} from './Mddata';
+import { RFC3339Date } from './RFC3339Date';
 
 var CR_NEWLINE_R = /\r\n?/g;
 var TAB_R = /\t/g;
@@ -23,7 +24,7 @@ export const Rules = {
     url: /<([a-zA-Z0-9@:%_\+.~#?&\/=]{2,256}\.[a-z]{2,4}\b(\/[\-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)?)>/g,
     url2: /[ \t\n]([a-zA-Z]{2,16}:\/\/[a-zA-Z0-9@:%_\+.~#?&=]{2,256}.[a-z]{2,4}\b(\/[\-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)?)[ \t\n]/g
   },
-  
+
   parse(text: string) : any {
     if (typeof text !== 'string') {
       return undefined;
@@ -34,6 +35,7 @@ export const Rules = {
             .replace(FORMFEED_R, '')
             .replace(TAB_R, '    ');
     
+    text = RFC3339Date.parseRFC3339(text).toString();
     // parse list
     let out = this.execType(text, this.parseList.bind(this));
     // parse link

@@ -6,7 +6,7 @@
 	<dict>
 		<key>Base.lproj/LaunchScreen.nib</key>
 		<data>
-		MJm9eN72O7SfqsvNFR3wOi3g9q4=
+		wyPQqFzA4FKaOPAypwJO7yJHKvA=
 		</data>
 		<key>Frameworks/XCTest.framework/Info.plist</key>
 		<data>
@@ -51,7 +51,7 @@
 		</data>
 		<key>PlugIns/TSDemoTests.xctest.dSYM/Contents/Resources/DWARF/TSDemoTests</key>
 		<data>
-		9evk3srx6m67M0M2bBe8Y++vrfs=
+		l6Ede18Zwq94XuIbPfeavm3bsh0=
 		</data>
 		<key>PlugIns/TSDemoTests.xctest/Info.plist</key>
 		<data>
@@ -59,7 +59,7 @@
 		</data>
 		<key>PlugIns/TSDemoTests.xctest/TSDemoTests</key>
 		<data>
-		UTdPjNulqpFB88lhQRitBg7tBzM=
+		dbwsMB6bSM0xYJ4oP6Wl1lMK+cA=
 		</data>
 		<key>PlugIns/TSDemoTests.xctest/_CodeSignature/CodeResources</key>
 		<data>
@@ -72,11 +72,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			MJm9eN72O7SfqsvNFR3wOi3g9q4=
+			wyPQqFzA4FKaOPAypwJO7yJHKvA=
 			</data>
 			<key>hash2</key>
 			<data>
-			oxHS+uM9mCKYRg2emRlZ761zFaLbh+aWhjKqu0d+FWc=
+			ek1nHPW/8D9i5H7BFIva9M8TQQGoAtAkiz+SIgGGl+Y=
 			</data>
 		</dict>
 		<key>Frameworks/XCTest.framework/Info.plist</key>
@@ -162,11 +162,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			9evk3srx6m67M0M2bBe8Y++vrfs=
+			l6Ede18Zwq94XuIbPfeavm3bsh0=
 			</data>
 			<key>hash2</key>
 			<data>
-			Vai1b3qYMLycPf07R4VmEgQEdKV5NMM0NRSt/BVHQtE=
+			U7h8FCW8ImrDylQHrRWPfCU1msaQaPCLt3Zs8Pu1zPc=
 			</data>
 		</dict>
 		<key>PlugIns/TSDemoTests.xctest/Info.plist</key>
@@ -184,11 +184,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			UTdPjNulqpFB88lhQRitBg7tBzM=
+			dbwsMB6bSM0xYJ4oP6Wl1lMK+cA=
 			</data>
 			<key>hash2</key>
 			<data>
-			ByVtOzkeUisqZK2QqkvG9YqxWUVNcTKabPMbJecS2V0=
+			+KK5t3Zbswz3AnaNs+f3tasYNQwwg0DRioBwx45oTuY=
 			</data>
 		</dict>
 		<key>PlugIns/TSDemoTests.xctest/_CodeSignature/CodeResources</key>

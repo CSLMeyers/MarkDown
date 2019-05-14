@@ -121,7 +121,12 @@ export class Markdown extends React.Component<IProps> {
         case Types.itemcontent: return this.renderText(node.data, key + '_link', style ? merge({}, style, mergedStyles.itemcontent) : mergedStyles.itemcontent);
         case Types.orderlist: return this.renderList(node.data, key + '_orderlist', true);
         case Types.unorderlist: return this.renderList(node.data, key + '_unorderlist', false);
-        case undefined/* string */: return this.renderText(node, key + '_string', style ? style : null);
+        case undefined/* string */: 
+          if (typeof node === 'string') {
+            return this.renderText(node, key + '_string', style);
+          } else {
+              return this.renderText('this should be string', key + '_string', style);
+          }
         default: return (<Text>{'data.type' + node.type + ' is not supported!'}</Text>);
       }
     }
