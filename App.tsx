@@ -65,9 +65,17 @@ sss
 const text8 = "Bulletbu\r- Now that\r1. we have defined the main rules and\r2. features of\r- the format, \r3. we need to produce\r4)  a schema and publish it to GitHub. The schema will be the starting point of our reference documentation.";
 
 const text9 = `
-No offset {{DATE(2017-02-14T06:08:00Z)}} {{TIME(2017-02-14T06:08:00Z)}}
+1985-04-12T23:20:50.52Z This represents 20 minutes and 50.52 seconds after the 23rd hour of April 12th, 1985 in UTC.
 
-No offset {{DATE(2011-12-31T16:48:00Z)}} at {{TIME(2011-12-31T16:48:00Z)}}
+1996-12-19T16:39:57-08:00 This represents 39 minutes and 57 seconds after the 16th hour of December 19th, 1996 with an offset of -08:00 from UTC (Pacific Standard Time).  Note that this is equivalent to 1996-12-20T00:39:57Z in UTC.
+
+1990-12-31T23:59:60Z This represents the leap second inserted at the end of 1990.
+
+1990-12-31T15:59:60-08:00  This represents the same leap second in Pacific Standard Time, 8 hours behind UTC.
+
+1937-01-01T12:00:27.87+00:20 
+
+LONG: {{DATE(1985-04-12T23:20:50.52Z, LONG)}} at {{TIME(1985-04-12T23:20:50.52Z)}}
 
 Positive offset {{DATE(2017-02-14T06:08:00+04:00)}} {{TIME(2017-02-14T06:08:00+04:00)}}
 
@@ -93,15 +101,8 @@ TIME doesn't allow a format param {{TIME(2017-02-14T06:08:00Z, SHORT)}}
 ` ;
 
 const text10 = `
-Invalid Date {{DATE(2017-99-14T06:08:00Z)}} {{TIME(2017-99-14T06:08:00Z)}}
 
-No offset {{DATE(2011-12-31T16:48:00Z)}} at {{TIME(2011-12-31T16:48:00Z)}}
-
-Positive offset {{DATE(2017-02-14T06:08:00+04:00)}} {{TIME(2017-02-14T06:08:00+04:00)}}
-
-Positive offset {{DATE(2017-02-14T06:08:00+04:30)}} {{TIME(2017-02-14T06:08:00+04:30)}}
-
-Negative offset {{DATE(2017-02-14T06:08:00-07:00)}} {{TIME(2017-02-14T06:08:00-07:00)}}
+LONG: {{DATE(1990-12-31T23:59:60Z, LONG)}} at {{TIME(1990-12-31T23:59:60Z)}}"
 ` ;
 
 
@@ -119,7 +120,7 @@ export default class App extends Component<Props> {
     return (
         <View style={styles.container}>
           <Markdown markdownStyles={styles.markdown} style={{color: 'black'}} >
-            {text9}
+            {text10}
           </Markdown>
         </View>
     );

@@ -4,18 +4,19 @@ export enum DateType {
   COMPACT,
   SHORT,
   LONG,
+  TIME,
 }
 
-const DATE = '(\\d\\d\\d\\d)-(\\d\\d)-(\\d\\d)';
-const TIME = '(\\d\\d):(\\d\\d)?:(\\d\\d)?($|Z|([+-])(\\d\\d):(\\d\\d)?)'
+const DATE = '(\\d{4})-(\\d{2})-(\\d{2})';
+const TIME = '(\\d{2}):(\\d{2})?:(\\d{2})(\\.\\d+)?($|Z|([+-])(\\d{2}):(\\d{2})?)';
 
 const DATE_TIME = DATE + 'T' + TIME;
 
 const DATE_PREFIX = '\\{\\{DATE\\(';
 const TIME_PREFIX = '\\{\\{TIME\\(';
-const LONG = '(, LONG)';
-const SHORT = '(, SHORT)';
-const COMPACT = '(|(, COMPACT))';
+const LONG = '(,(|\\s)LONG)';
+const SHORT = '(,(|\\s)SHORT)';
+const COMPACT = '(|(,(|\\s)COMPACT))';
 const TAIL = '\\)\\}\\}';
 
 const COMPACT_DATE = new RegExp(
@@ -100,10 +101,9 @@ export class RFC3339Date {
    }
 
    private static isValidTime(hour: number, minute: number, second: number){
-     return (hour >= 0 && hour < 24 
+     return hour >= 0 && hour < 24 
         && minute >= 0 && minute < 60 
-        && second >= 0 && second < 60)
-        || (hour === 24 && minute === 0 && second === 0); 
+        && second >= 0 && second <= 60; 
    }
 
   private static convertDateToString(date: Date, dateType: DateType): string {
@@ -130,7 +130,10 @@ export class RFC3339Date {
     }
   }
 
-  private static convertTimeToString(date: Date): string {
+  private static convertTimeToString(date: Date, dateType: DateType): string {
+    if (dateType !== DateType.TIME) {
+      return '';
+    }
     let hour = date.getHours();
     let minute = date.getMinutes();
 
@@ -138,7 +141,6 @@ export class RFC3339Date {
   }
 
   private static parseDateAndTime(text: string, reg: RegExp, func: Function, dateType?: DateType): string {
-    let date: Date = new Date();
     let regData: RegExpExecArray | null;
     while ((regData = reg.exec(text)) !== null) {
       let pre: string = text.slice(0, regData.index);
@@ -149,18 +151,18 @@ export class RFC3339Date {
       var hour   = +regData[4];
       var minute = +regData[5];
       var second = +regData[6];
-      var tz     = regData[7];
-      var flag   = regData[8] === '-' ? -1 : 1;
-      var tzHour = +regData[9];
-      var tzMin  = +regData[10];
-
-      var tzOffset = new Date().getTimezoneOffset() + (tz === 'Z' ? 0 : (tzHour * 60 + tzMin) * flag);
+      // var msec = +regData[7];
+      var tz     = regData[8];
+      var flag   = regData[9] === '-' ? -1 : 1;
+      var tzHour = +regData[10];
+      var tzMin  = +regData[11];
 
       let dateTime: string;
       if (!this.isValidDate(year, month, day) || !this.isValidTime(hour, minute, second)) {
         dateTime = 'Invalid Date';
       } else {
-        date = new Date(year, month - 1, day,  hour, minute - tzOffset, second);
+        var tzOffset = new Date().getTimezoneOffset() + (tz === 'Z' ? 0 : (tzHour * 60 + tzMin) * flag);
+        let date: Date = new Date(year, month - 1, day,  hour, minute - tzOffset, second);
         dateTime = func(date, dateType);
       }
       
@@ -189,7 +191,7 @@ export class RFC3339Date {
   }
 
   public static parseTime(text: string): string {
-    return this.parseDateAndTime (text, TIME_WITH_ZONE, this.convertTimeToString.bind(this))
+    return this.parseDateAndTime (text, TIME_WITH_ZONE, this.convertTimeToString.bind(this),DateType.TIME)
   }
 
   public static parseRFC3339(text: string): string { 
