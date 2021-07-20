@@ -9,7 +9,7 @@
   "dependencies": {
     "prop-types": "^15.6.0",
     "react": "16.8.3",
-    "react-native": "0.59.1"
+    "react-native": "0.62.3"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.121",
